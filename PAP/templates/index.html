@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signify</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <!-- Blurry Gradient Background -->
+    <div class="gradient-bg"></div>
+    
+    <!-- Floating Letters Background -->
+    <div class="floating-letters" id="floating-letters"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1 class="logo">Signify</h1>
+            <p class="subtitle">Da linguagem gestual ao texto</p>
+        </header>
+
+        <!-- Main Content - SPLIT LAYOUT -->
+        <main class="main">
+            <!-- Left Side - Camera -->
+            <section class="camera-section">
+                <div class="camera-frame">
+                    <img src="{{ url_for('video_feed') }}" alt="Camera Feed" id="video-stream">
+                </div>
+            </section>
+
+            <!-- Right Side - Predictions & Controls -->
+            <section class="predictions-section">
+                <!-- Predictions -->
+                <div class="predictions">
+                    <div class="prediction-card">
+                        <div class="card-title">Letra Atual</div>
+                        <div class="letter-display" id="current-letter">—</div>
+                    </div>
+
+                    <div class="prediction-card">
+                        <div class="card-title">Palavra Prevista</div>
+                        <div class="word-display" id="predicted-word"></div>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="controls-section">
+                    <div class="controls">
+                        <button class="btn btn-primary" id="reset-btn">Clear Text</button>
+                        <button class="btn btn-secondary" id="space-btn">Add Space</button>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Reconhecimento de gestos manuais em tempo real</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
