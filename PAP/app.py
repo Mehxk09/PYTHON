@@ -1,4 +1,3 @@
-# app.py
 import cv2
 import mediapipe as mp
 import numpy as np
@@ -118,11 +117,10 @@ def gen_frames():
                             predicted_word += letter
                             last_letter = letter
                             print(f"✓ Letter confirmed: {letter} | Word so far: {predicted_word}")
-                            letter_buffer = []  # Clear buffer after adding
+                            letter_buffer = []  
                 else:
-                    # Low confidence - gradually clear buffer
                     if len(letter_buffer) > 0:
-                        letter_buffer.pop(0)  # Remove oldest instead of clearing all
+                        letter_buffer.pop(0)  
 
                 cv2.putText(
                     frame,
@@ -178,6 +176,17 @@ def reset_word():
 def add_space():
     global predicted_word
     predicted_word += " "
+    return jsonify({"success": True})
+
+
+@app.route('/backspace', methods=['POST'])
+def backspace():
+    """
+    Remove the last character from the predicted word (if any).
+    """
+    global predicted_word
+    if len(predicted_word) > 0:
+        predicted_word = predicted_word[:-1]
     return jsonify({"success": True})
 # ---------------------------
 # Run

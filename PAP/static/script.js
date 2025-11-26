@@ -159,6 +159,28 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         });
     }
+
+    // Backspace button
+    const backspaceBtn = document.getElementById('backspace-btn');
+    if (backspaceBtn) {
+        backspaceBtn.addEventListener('click', function() {
+            fetch('/backspace', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    updatePredictions(); // Update display immediately
+                }
+            })
+            .catch(error => {
+                console.error('Error doing backspace:', error);
+            });
+        });
+    }
     
     // Initial update
     updatePredictions();
