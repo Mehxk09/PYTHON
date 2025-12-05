@@ -5,6 +5,7 @@ from flask import Flask, render_template, Response, jsonify
 from tensorflow.keras.models import load_model
 import pickle
 import os
+import time
 
 app = Flask(__name__)
 
@@ -21,6 +22,7 @@ if os.path.exists(MODEL_PATH) and os.path.exists(LABEL_PATH):
         label_encoder = pickle.load(f)
 else:
     raise FileNotFoundError("Model or label encoder not found.")
+
 
 # ---------------------------
 # Prediction memory
@@ -70,75 +72,97 @@ def extract_landmarks(results):
 # Webcam stream + prediction
 # ---------------------------
 def gen_frames():
+    """
+    Generate frames from the webcam in a resilient way.
+    If the capture drops a frame, try to recover without killing the stream.
+    """
     global current_letter, predicted_word, last_letter, letter_buffer
 
-    cap = cv2.VideoCapture(0)
-    if not cap.isOpened():
-        print("Could not open webcam")
-        return
+    cap = None
 
-    while True:
-        success, frame = cap.read()
-        if not success:
-            break
+    def _open_capture():
+        capture = cv2.VideoCapture(0)
+        if not capture.isOpened():
+            print("Could not open webcam. Retrying...")
+            return None
+        return capture
 
-        frame = cv2.flip(frame, 1)
-        img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-        results = hands.process(img_rgb)
+    try:
+        while True:
+            if cap is None or not cap.isOpened():
+                cap = _open_capture()
+                if cap is None:
+                    time.sleep(0.5)
+                    continue
 
-        if results.multi_hand_landmarks:
-            mp_draw.draw_landmarks(
-                frame,
-                results.multi_hand_landmarks[0],
-                mp_hands.HAND_CONNECTIONS
-            )
+            success, frame = cap.read()
+            if not success:
+                # Attempt to recover by resetting the capture
+                cap.release()
+                cap = None
+                time.sleep(0.1)
+                continue
 
-            landmarks = extract_landmarks(results)
-            if landmarks is not None:
-                x = np.array(landmarks, dtype=np.float32).reshape(1, -1)
-                probs = model.predict(x, verbose=0)[0]
-                idx = int(np.argmax(probs))
+            frame = cv2.flip(frame, 1)
+            img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            results = hands.process(img_rgb)
 
-                letter = label_encoder.classes_[idx]
-                conf = float(probs[idx])
-                current_letter = letter
-
-                # -----------------------
-                # Debounce logic
-                # -----------------------
-                if conf > 0.5:  # Lowered from 0.90 to catch more predictions
-                    letter_buffer.append(letter)
-                    if len(letter_buffer) > BUFFER_SIZE:
-                        letter_buffer.pop(0)
-
-                    # Only add if at least 3 out of 5 frames are the same letter (was BUFFER_SIZE=5, too strict!)
-                    if len(letter_buffer) >= 3 and letter_buffer.count(letter) >= 3:
-                        if letter != last_letter:
-                            predicted_word += letter
-                            last_letter = letter
-                            print(f"✓ Letter confirmed: {letter} | Word so far: {predicted_word}")
-                            letter_buffer = []  
-                else:
-                    if len(letter_buffer) > 0:
-                        letter_buffer.pop(0)  
-
-                cv2.putText(
+            if results.multi_hand_landmarks:
+                mp_draw.draw_landmarks(
                     frame,
-                    f"{letter} ({conf:.2f})",
-                    (10, 70),
-                    cv2.FONT_HERSHEY_SIMPLEX,
-                    2,
-                    (0, 255, 0),
-                    3
+                    results.multi_hand_landmarks[0],
+                    mp_hands.HAND_CONNECTIONS
                 )
 
-        ret, buffer = cv2.imencode('.jpg', frame)
-        frame_bytes = buffer.tobytes()
+                landmarks = extract_landmarks(results)
+                if landmarks is not None:
+                    x = np.array(landmarks, dtype=np.float32).reshape(1, -1)
+                    probs = model.predict(x, verbose=0)[0]
+                    idx = int(np.argmax(probs))
 
-        yield (
-            b'--frame\r\n'
-            b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n'
-        )
+                    letter = label_encoder.classes_[idx]
+
+                    conf = float(probs[idx])
+                    current_letter = letter
+
+                    # -----------------------
+                    # Debounce logic
+                    # -----------------------
+                    if conf > 0.5:
+                        letter_buffer.append(letter)
+                        if len(letter_buffer) > BUFFER_SIZE:
+                            letter_buffer.pop(0)
+
+                        if len(letter_buffer) >= 3 and letter_buffer.count(letter) >= 3:
+                            if letter != last_letter:
+                                predicted_word += letter
+                                last_letter = letter
+                                print(f"✓ Letter confirmed: {letter} | Word so far: {predicted_word}")
+                                letter_buffer = []
+                    else:
+                        if len(letter_buffer) > 0:
+                            letter_buffer.pop(0)
+
+                    cv2.putText(
+                        frame,
+                        f"{letter} ({conf:.2f})",
+                        (10, 70),
+                        cv2.FONT_HERSHEY_SIMPLEX,
+                        2,
+                        (0, 255, 0),
+                        3
+                    )
+
+            ret, buffer = cv2.imencode('.jpg', frame)
+            frame_bytes = buffer.tobytes()
+
+            yield (
+                b'--frame\r\n'
+                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n'
+            )
+    finally:
+        if cap is not None and cap.isOpened():
+            cap.release()
 
 # ---------------------------
 # Flask Routes

@@ -25,7 +25,12 @@
             <!-- Left Side - Camera -->
             <section class="camera-section">
                 <div class="camera-frame">
-                    <img src="{{ url_for('video_feed') }}" alt="Camera Feed" id="video-stream">
+                    <div class="camera-placeholder" id="camera-placeholder">
+                        <div class="placeholder-icon">📷</div>
+                        <p class="placeholder-title">Camera off</p>
+                        <p class="placeholder-subtitle">Press “Start Camera” to begin</p>
+                    </div>
+                    <img src="" alt="Camera" id="video-stream" data-stream-url="{{ url_for('video_feed') }}">
                 </div>
             </section>
 
@@ -47,9 +52,14 @@
                 <!-- Controls -->
                 <div class="controls-section">
                     <div class="controls">
-                        <button class="btn btn-primary" id="reset-btn">Clear Text</button>
-                        <button class="btn btn-secondary" id="space-btn">Add Space</button>
-                        <button class="btn btn-secondary" id="backspace-btn">Backspace</button>
+                        <div class="camera-control">
+                            <button class="btn btn-primary" id="toggle-camera-btn">Start Camera</button>
+                        </div>
+                        <div class="text-controls">
+                            <button class="btn btn-secondary" id="reset-btn">Clear Text</button>
+                            <button class="btn btn-secondary" id="space-btn">Add Space</button>
+                            <button class="btn btn-secondary" id="backspace-btn">Backspace</button>
+                        </div>
                     </div>
                 </div>
             </section>

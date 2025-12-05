@@ -114,8 +114,58 @@ function updatePredictions() {
 // Poll for predictions every 100ms (10 times per second)
 setInterval(updatePredictions, 100);
 
+let cameraActive = false;
+
+function setCameraPlaceholder(visible) {
+    const placeholder = document.getElementById('camera-placeholder');
+    if (!placeholder) return;
+    placeholder.classList.toggle('hidden', !visible);
+}
+
+function updateCameraButton() { 
+    const toggleBtn = document.getElementById('toggle-camera-btn');
+    if (toggleBtn) {
+        toggleBtn.textContent = cameraActive ? 'Stop Camera' : 'Start Camera';
+    }
+}
+
+function startCamera() {
+    if (cameraActive) return;
+    const videoStream = document.getElementById('video-stream');
+    if (!videoStream) return;
+    const baseUrl = videoStream.dataset.streamUrl || '/video_feed';
+    videoStream.src = `${baseUrl}?t=${Date.now()}`;
+    cameraActive = true;
+    updateCameraButton();
+    setCameraPlaceholder(false);
+}
+
+function stopCamera() {
+    if (!cameraActive) return;
+    const videoStream = document.getElementById('video-stream');
+    if (!videoStream) return;
+    videoStream.src = '';
+    cameraActive = false;
+    updateCameraButton();
+    setCameraPlaceholder(true);
+}
+
 // Button handlers
 document.addEventListener('DOMContentLoaded', function() {
+    updateCameraButton();
+    setCameraPlaceholder(true);
+
+    const toggleCameraBtn = document.getElementById('toggle-camera-btn');
+    if (toggleCameraBtn) {
+        toggleCameraBtn.addEventListener('click', function() {
+            if (cameraActive) {
+                stopCamera();
+            } else {
+                startCamera();
+            }
+        });
+    }
+
     // Reset button
     const resetBtn = document.getElementById('reset-btn');
     if (resetBtn) {
