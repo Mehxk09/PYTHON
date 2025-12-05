@@ -99,16 +99,91 @@ function updatePredictions() {
                     currentLetterEl.textContent = data.current_letter || '—';
                 }
                 
-                // Update predicted word
+                // Update current word
+                const currentWordEl = document.getElementById('current-word');
+                if (currentWordEl) {
+                    currentWordEl.textContent = data.current_word || '—';
+                }
+                
+                // Update predicted word (accumulated text)
                 const predictedWordEl = document.getElementById('predicted-word');
                 if (predictedWordEl) {
                     predictedWordEl.textContent = data.predicted_word || '';
                 }
+                
+                // Update mode status
+                updateModeDisplay(data.mode, data.has_letter_model, data.has_word_model);
             }
         })
         .catch(error => {
             console.error('Error fetching predictions:', error);
         });
+}
+
+function updateModeDisplay(mode, hasLetterModel, hasWordModel) {
+    const modeStatus = document.getElementById('mode-status');
+    const letterCard = document.getElementById('letter-card');
+    const wordCard = document.getElementById('word-card');
+    const letterModeBtn = document.getElementById('letter-mode-btn');
+    const wordModeBtn = document.getElementById('word-mode-btn');
+    
+    if (modeStatus) {
+        let statusText = `Modo: ${mode === 'words' ? 'Palavras' : 'Letras'}`;
+        if (mode === 'words' && !hasWordModel) {
+            statusText += ' (Modelo não disponível - Treine primeiro!)';
+        } else if (mode === 'letters' && !hasLetterModel) {
+            statusText += ' (Modelo não disponível)';
+        }
+        modeStatus.textContent = statusText;
+    }
+    
+    // Show/hide cards based on mode
+    if (letterCard) {
+        letterCard.style.display = mode === 'letters' ? 'block' : 'none';
+    }
+    if (wordCard) {
+        wordCard.style.display = mode === 'words' ? 'block' : 'none';
+    }
+    
+    // Update button states
+    if (letterModeBtn) {
+        letterModeBtn.classList.toggle('active', mode === 'letters');
+        letterModeBtn.disabled = !hasLetterModel;
+        if (!hasLetterModel) {
+            letterModeBtn.title = 'Modelo de letras não disponível';
+        }
+    }
+    if (wordModeBtn) {
+        wordModeBtn.classList.toggle('active', mode === 'words');
+        wordModeBtn.disabled = !hasWordModel;
+        if (!hasWordModel) {
+            wordModeBtn.title = 'Modelo de palavras não disponível. Execute: python PAP/model/train_word_model.py';
+        } else {
+            wordModeBtn.title = '';
+        }
+    }
+}
+
+function setMode(mode) {
+    fetch('/set_mode', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ mode: mode })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            console.log(`Mode switched to: ${mode}`);
+            updatePredictions();
+        } else {
+            alert(data.error || 'Failed to switch mode');
+        }
+    })
+    .catch(error => {
+        console.error('Error switching mode:', error);
+    });
 }
 
 // Poll for predictions every 100ms (10 times per second)
@@ -232,6 +307,32 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    // Mode toggle buttons
+    const letterModeBtn = document.getElementById('letter-mode-btn');
+    const wordModeBtn = document.getElementById('word-mode-btn');
+    
+    if (letterModeBtn) {
+        letterModeBtn.addEventListener('click', function() {
+            setMode('letters');
+        });
+    }
+    
+    if (wordModeBtn) {
+        wordModeBtn.addEventListener('click', function() {
+            setMode('words');
+        });
+    }
+    
     // Initial update
     updatePredictions();
+    
+    // Check available modes on load
+    fetch('/get_mode')
+        .then(response => response.json())
+        .then(data => {
+            updateModeDisplay(data.mode, data.has_letter_model, data.has_word_model);
+        })
+        .catch(error => {
+            console.error('Error fetching mode:', error);
+        });
 });

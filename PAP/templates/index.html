@@ -36,15 +36,29 @@
 
             <!-- Right Side - Predictions & Controls -->
             <section class="predictions-section">
+                <!-- Mode Toggle -->
+                <div class="mode-toggle-section">
+                    <div class="mode-toggle">
+                        <button class="mode-btn" id="letter-mode-btn" data-mode="letters">Letras</button>
+                        <button class="mode-btn active" id="word-mode-btn" data-mode="words">Palavras</button>
+                    </div>
+                    <div class="mode-status" id="mode-status">Modo: Carregando...</div>
+                </div>
+
                 <!-- Predictions -->
                 <div class="predictions">
-                    <div class="prediction-card">
+                    <div class="prediction-card" id="letter-card">
                         <div class="card-title">Letra Atual</div>
                         <div class="letter-display" id="current-letter">—</div>
                     </div>
 
+                    <div class="prediction-card" id="word-card">
+                        <div class="card-title">Palavra Detectada</div>
+                        <div class="word-display" id="current-word">—</div>
+                    </div>
+
                     <div class="prediction-card">
-                        <div class="card-title">Palavra Prevista</div>
+                        <div class="card-title">Texto Completo</div>
                         <div class="word-display" id="predicted-word"></div>
                     </div>
                 </div>                
