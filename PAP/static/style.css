@@ -85,7 +85,34 @@ body {
     font-size: 0.75rem;
     letter-spacing: 1.5px;
     text-transform: uppercase;
-    margin-bottom: 0;
+    margin-bottom: 0.3rem;
+}
+
+.dict-nav-link {
+    position: fixed;
+    top: 1.2rem;
+    right: 1.5rem;
+    color: rgba(3, 22, 2, 0.7);
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    padding: 0.5rem 1.3rem;
+    border: 1px solid rgba(7, 61, 27, 0.3);
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 100;
+}
+
+.dict-nav-link:hover {
+    background: rgba(255, 255, 255, 0.4);
+    color: #01210a;
+    border-color: rgba(7, 61, 27, 0.5);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(7, 61, 27, 0.2);
 }
 
 /* Main Content - More Compact */
@@ -110,12 +137,13 @@ body {
 
 .camera-frame {
     width: 100%;
-    max-width: 750px;
+    max-width: 900px;
     height: 100%;
+    min-height: 600px;
     border-radius: 20px;
     overflow: hidden;
     background: rgba(16, 40, 16, 0.27);
-    border: 1px solid rgba(255, 255, 255, 0.51);
+    border: 2px solid rgba(255, 255, 255, 0.51);
     box-shadow: 0 30px 70px rgba(1, 32, 11, 0.25);
     position: relative;
     transition: all 0.4s ease;
@@ -134,9 +162,74 @@ body {
 }
 
 .camera-frame:hover {
-    transform: translateY(-6px);
     box-shadow: 0 40px 80px rgba(1, 32, 11, 0.35);
     border-color: rgba(7, 50, 12, 0.4);
+}
+
+/* 1. Animated loading glow when camera is active */
+.camera-frame.camera-active {
+    border-color: rgba(144, 210, 160, 0.25);
+    animation: glowPulse 3s ease-in-out infinite;
+}
+
+/* Rotating light sweep around the border */
+.camera-frame.camera-active::before {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    border-radius: 22px;
+    background: conic-gradient(
+        from var(--glow-angle, 0deg),
+        transparent 0%,
+        transparent 60%,
+        rgba(144, 210, 160, 0.3) 75%,
+        rgba(180, 230, 190, 0.5) 85%,
+        rgba(144, 210, 160, 0.3) 95%,
+        transparent 100%
+    );
+    z-index: -1;
+    animation: spinGlow 3s linear infinite;
+    filter: blur(3px);
+}
+
+@property --glow-angle {
+    syntax: '<angle>';
+    initial-value: 0deg;
+    inherits: false;
+}
+
+@keyframes spinGlow {
+    0% { --glow-angle: 0deg; }
+    100% { --glow-angle: 360deg; }
+}
+
+/* Fallback for browsers without @property support */
+@supports not (--glow-angle: 0deg) {
+    .camera-frame.camera-active::before {
+        background: linear-gradient(135deg, transparent, rgba(144, 210, 160, 0.35), transparent, rgba(180, 230, 190, 0.25), transparent);
+        background-size: 400% 400%;
+        animation: shiftGlow 3s ease-in-out infinite;
+        filter: blur(4px);
+    }
+}
+
+@keyframes shiftGlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes glowPulse {
+    0%, 100% {
+        box-shadow:
+            0 0 15px rgba(144, 210, 160, 0.12),
+            0 0 40px rgba(144, 210, 160, 0.06);
+    }
+    50% {
+        box-shadow:
+            0 0 20px rgba(144, 210, 160, 0.18),
+            0 0 50px rgba(144, 210, 160, 0.08);
+    }
 }
 
 #video-stream {
@@ -147,6 +240,11 @@ body {
     z-index: 1;
 }
 
+/* Hide img when no source is set */
+#video-stream[src=""] {
+    display: none;
+}
+
 .camera-placeholder {
     position: absolute;
     inset: 0;
@@ -154,8 +252,8 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 0.5rem;
-    color: rgba(3, 22, 2, 0.7);
+    gap: 0.8rem;
+    color: rgba(3, 22, 2, 0.6);
     font-weight: 600;
     z-index: 2;
     text-transform: uppercase;
@@ -167,6 +265,7 @@ body {
     border: 1px solid rgba(255, 255, 255, 0.51);
     backdrop-filter: blur(5.3px);
     -webkit-backdrop-filter: blur(5.3px);
+    cursor: default;
 }
 
 .camera-placeholder.hidden {
@@ -175,19 +274,69 @@ body {
     pointer-events: none;
 }
 
-.placeholder-icon {
-    font-size: 2.4rem;
+/* Camera icon wrapper with hover effects */
+.placeholder-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(3, 22, 2, 0.06);
+    border: 2px solid rgba(3, 22, 2, 0.12);
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    animation: iconFloat 3s ease-in-out infinite;
+}
+
+.camera-placeholder:hover .placeholder-icon-wrapper {
+    transform: scale(1.1) rotate(-5deg);
+    background: rgba(3, 22, 2, 0.1);
+    border-color: rgba(3, 22, 2, 0.2);
+    box-shadow: 0 8px 30px rgba(3, 22, 2, 0.1);
+}
+
+.placeholder-svg-icon {
+    width: 42px;
+    height: 42px;
+    color: rgba(3, 22, 2, 0.45);
+    transition: all 0.4s ease;
+}
+
+.camera-placeholder:hover .placeholder-svg-icon {
+    color: rgba(3, 22, 2, 0.65);
+    transform: scale(1.05);
+}
+
+@keyframes iconFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+}
+
+.camera-placeholder:hover .placeholder-icon-wrapper {
+    animation-play-state: paused;
 }
 
 .placeholder-title {
     font-size: 1rem;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.25em;
+    color: rgba(3, 22, 2, 0.55);
+    transition: all 0.3s ease;
+}
+
+.camera-placeholder:hover .placeholder-title {
+    color: rgba(3, 22, 2, 0.75);
+    letter-spacing: 0.3em;
 }
 
 .placeholder-subtitle {
     font-size: 0.8rem;
     text-transform: none;
     letter-spacing: 0.05em;
+    color: rgba(3, 22, 2, 0.4);
+    transition: all 0.3s ease;
+}
+
+.camera-placeholder:hover .placeholder-subtitle {
     color: rgba(3, 22, 2, 0.55);
 }
 
@@ -310,7 +459,6 @@ body {
 }
 
 .prediction-card:hover {
-    transform: translateY(-4px);
     border-color: rgba(7, 50, 12, 0.35);
     box-shadow: 0 25px 45px rgba(1, 32, 11, 0.25);
 }
@@ -324,14 +472,72 @@ body {
     font-weight: 600;
 }
 
+/* 6. Gradient animated text on detected letter */
 .letter-display {
     font-size: 2.5rem;
     font-weight: 700;
-    color: #01210a;
     margin: 0.2rem 0;
     letter-spacing: 0.15em;
-    text-shadow: 0 10px 30px rgba(1, 32, 11, 0.15);
     transition: all 0.3s ease;
+    background: linear-gradient(135deg, #031602, #153d13, #2d8a4e, #153d13, #031602);
+    background-size: 200% 200%;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: letterGradient 4s ease-in-out infinite;
+}
+
+@keyframes letterGradient {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+/* 7. Confidence bar */
+.confidence-bar-wrapper {
+    width: 100%;
+    height: 6px;
+    background: rgba(0, 0, 0, 0.08);
+    border-radius: 3px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.confidence-bar {
+    height: 100%;
+    width: 0%;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #2d8a4e, #153d13);
+    transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), background 0.3s ease;
+    box-shadow: 0 0 8px rgba(45, 138, 78, 0.4);
+}
+
+.confidence-label {
+    font-size: 0.65rem;
+    color: rgba(3, 22, 2, 0.5);
+    text-align: right;
+    margin-top: 0.2rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    transition: color 0.3s ease;
+}
+
+/* 5. Typing cursor on Texto Completo */
+#predicted-word {
+    position: relative;
+}
+
+#predicted-word::after {
+    content: '|';
+    animation: blinkCursor 1s step-end infinite;
+    color: #153d13;
+    font-weight: 300;
+    margin-left: 2px;
+}
+
+@keyframes blinkCursor {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
 }
 
 .word-display {
@@ -347,6 +553,21 @@ body {
     border-radius: 10px;
     padding: 0.5rem 0.75rem;
     width: 100%;
+}
+
+/* 4. Button ripple effect */
+.btn-ripple {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: scale(0);
+    animation: btnRipple 0.6s ease-out forwards;
+    pointer-events: none;
+}
+
+@keyframes btnRipple {
+    0% { transform: scale(0); opacity: 1; }
+    100% { transform: scale(4); opacity: 0; }
 }
 
 /* Controls Section - More Compact */
@@ -645,8 +866,8 @@ body {
     mix-blend-mode: difference;
 }
 
-/* Hide default cursor */
-body {
+/* Hide default cursor only when custom cursor JS has loaded */
+body.custom-cursor-active {
     cursor: none;
 }
 

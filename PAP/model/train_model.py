@@ -9,7 +9,7 @@ from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 
-DATASET_DIR = "dataset"  # expects dataset/A, dataset/B, ...
+DATASET_DIR = os.path.join("dataset", "asl_alphabets")  # expects dataset/asl_alphabets/A, B, ...
 MODEL_OUT = "model/letter_model.h5"
 
 mp_hands = mp.solutions.hands

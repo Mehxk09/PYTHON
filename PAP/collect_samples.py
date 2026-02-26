@@ -9,7 +9,7 @@ if len(sys.argv) < 2:
     sys.exit(1)
 
 LETTER = sys.argv[1].upper()
-OUT_DIR = os.path.join("dataset", LETTER)
+OUT_DIR = os.path.join("dataset", "asl_alphabets", LETTER)
 os.makedirs(OUT_DIR, exist_ok=True)
 
 cap = cv2.VideoCapture(0)

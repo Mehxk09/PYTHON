@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signify — Dicionário</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='dicionario.css') }}">
+</head>
+<body class="dict-page">
+    <!-- Blurry Gradient Background -->
+    <div class="gradient-bg"></div>
+
+    <!-- Floating Letters Background -->
+    <div class="floating-letters" id="floating-letters"></div>
+
+    <!-- Back link - top left corner -->
+    <a href="{{ url_for('index') }}" class="dict-back-link">← Voltar</a>
+
+    <div class="dict-container">
+        <!-- Header -->
+        <header class="dict-header">
+            <h1 class="logo">Signify</h1>
+            <p class="subtitle">📓 Dicionário de Língua Gestual</p>
+        </header>
+
+        <!-- Tab Navigation -->
+        <nav class="dict-tabs">
+            <button class="dict-tab active" data-tab="alphabet">Alfabeto ASL</button>
+            <button class="dict-tab" data-tab="words">Palavras LGP</button>
+        </nav>
+
+        <!-- Alphabet Section -->
+        <section class="dict-section active" id="tab-alphabet">
+            <p class="dict-description">
+                O alfabeto da Língua Gestual Americana (ASL)
+            </p>
+            <div class="dict-grid alphabet-grid">
+                {% for item in letters %}
+                <div class="dict-card letter-card" data-letter="{{ item.letter }}">
+                    <div class="dict-card-image">
+                        <img src="{{ url_for('dicionario.serve_letter_image', letter=item.letter, filename=item.image) }}"
+                            alt="Letra {{ item.letter }}"
+                            loading="lazy">
+                    </div>
+                    <div class="dict-card-label">{{ item.letter }}</div>
+                </div>
+                {% endfor %}
+
+                {% if not letters %}
+                <p class="dict-empty">Nenhuma imagem de letra encontrada. Recolha amostras primeiro.</p>
+                {% endif %}
+            </div>
+        </section>
+
+        <!-- Words Section -->
+        <section class="dict-section" id="tab-words">
+            <p class="dict-description">
+                Palavras e expressões da Língua Gestual Portuguesa (LGP) — clique no vídeo para ver o gesto.
+            </p>
+            <div class="dict-grid words-grid">
+                {% for item in words %}
+                <div class="dict-card word-card" data-word="{{ item.word }}">
+                    <div class="dict-card-video">
+                        <video preload="metadata" loop muted playsinline
+                            poster=""
+                            src="{{ url_for('dicionario.serve_word_video', word=item.word, filename=item.video) }}">
+                        </video>
+                        <div class="play-overlay">▶</div>
+                    </div>
+                    <div class="dict-card-label">{{ item.display_name }}</div>
+                </div>
+                {% endfor %}
+
+                {% if not words %}
+                <p class="dict-empty">Nenhum vídeo de palavra encontrado. Recolha amostras primeiro.</p>
+                {% endif %}
+            </div>
+
+            <!-- Coming Soon Note -->
+            <div class="dict-coming-soon">
+                <p>🚧</p>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="dict-footer">
+            <p>Dicionário de Língua Gestual — Signify</p>
+        </footer>
+    </div>
+
+    <!-- Reuse the main script for floating letters, gradient interaction, and custom cursor -->
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+    <script>
+        // Tab switching
+        document.querySelectorAll('.dict-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.dict-tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.dict-section').forEach(s => s.classList.remove('active'));
+
+                tab.classList.add('active');
+                const target = document.getElementById('tab-' + tab.dataset.tab);
+                if (target) target.classList.add('active');
+            });
+        });
+
+        // Video play/pause on click
+        document.querySelectorAll('.word-card').forEach(card => {
+            const video = card.querySelector('video');
+            const overlay = card.querySelector('.play-overlay');
+            if (!video) return;
+
+            card.addEventListener('click', () => {
+                if (video.paused) {
+                    document.querySelectorAll('.word-card video').forEach(v => {
+                        v.pause();
+                        v.closest('.word-card').querySelector('.play-overlay').style.opacity = '1';
+                    });
+                    video.play();
+                    overlay.style.opacity = '0';
+                } else {
+                    video.pause();
+                    overlay.style.opacity = '1';
+                }
+            });
+
+            video.addEventListener('ended', () => {
+                overlay.style.opacity = '1';
+            });
+        });
+
+        // Click ripple effect on letter cards
+        document.querySelectorAll('.dict-card').forEach(card => {
+            card.addEventListener('click', function(e) {
+                // Create ripple
+                const ripple = document.createElement('span');
+                ripple.className = 'card-ripple';
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                ripple.style.left = x + 'px';
+                ripple.style.top = y + 'px';
+                card.appendChild(ripple);
+
+                // Pop animation
+                card.classList.add('card-clicked');
+                setTimeout(() => card.classList.remove('card-clicked'), 300);
+                setTimeout(() => ripple.remove(), 600);
+            });
+        });
+
+        // Image modal on letter card click
+        document.querySelectorAll('.letter-card').forEach(card => {
+            card.style.cursor = 'pointer';
+            card.addEventListener('click', function() {
+                const img = card.querySelector('img');
+                const label = card.querySelector('.dict-card-label');
+                if (!img) return;
+
+                // If modal already open, close it
+                const existing = document.querySelector('.dict-modal');
+                if (existing) { existing.remove(); return; }
+
+                const modal = document.createElement('div');
+                modal.className = 'dict-modal';
+                modal.innerHTML = `
+                    <div class="dict-modal-content">
+                        <img src="${img.src}" alt="${img.alt}">
+                        <div class="dict-modal-label">${label ? label.textContent : ''}</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+
+                // Animate in
+                requestAnimationFrame(() => modal.classList.add('visible'));
+
+                modal.addEventListener('click', () => {
+                    modal.classList.remove('visible');
+                    setTimeout(() => modal.remove(), 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

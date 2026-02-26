@@ -13,8 +13,10 @@
     <!-- Floating Letters Background -->
     <div class="floating-letters" id="floating-letters"></div>
 
+    <!-- Dictionary link - top left corner -->
+    <a href="{{ url_for('dicionario.dicionario') }}" class="dict-nav-link">📓 Dicionário</a>
+
     <div class="container">
-        <!-- Header -->
         <header class="header">
             <h1 class="logo">Signify</h1>
             <p class="subtitle">Da linguagem gestual ao texto</p>
@@ -26,11 +28,17 @@
             <section class="camera-section">
                 <div class="camera-frame">
                     <div class="camera-placeholder" id="camera-placeholder">
-                        <div class="placeholder-icon">📷</div>
-                        <p class="placeholder-title">Camera off</p>
-                        <p class="placeholder-subtitle">Press “Start Camera” to begin</p>
+                        <div class="placeholder-icon-wrapper">
+                            <svg class="placeholder-svg-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="6" y="16" width="52" height="36" rx="6" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                                <circle cx="32" cy="34" r="10" stroke="currentColor" stroke-width="2.5" fill="none"/>
+                                <circle cx="32" cy="34" r="4" fill="currentColor" opacity="0.4"/>
+                                <rect x="22" y="10" width="20" height="8" rx="3" stroke="currentColor" stroke-width="2" fill="none"/>
+                                <circle cx="48" cy="22" r="2" fill="currentColor" opacity="0.6"/>
+                            </svg>
+                        </div>
                     </div>
-                    <img src="" alt="Camera" id="video-stream" data-stream-url="{{ url_for('video_feed') }}">
+                    <img src="" alt="" id="video-stream" data-stream-url="{{ url_for('video_feed') }}">
                 </div>
             </section>
 
@@ -39,8 +47,8 @@
                 <!-- Mode Toggle -->
                 <div class="mode-toggle-section">
                     <div class="mode-toggle">
-                        <button class="mode-btn" id="letter-mode-btn" data-mode="letters">Letras</button>
-                        <button class="mode-btn active" id="word-mode-btn" data-mode="words">Palavras</button>
+                        <button class="mode-btn active" id="letter-mode-btn" data-mode="letters">Letras</button>
+                        <button class="mode-btn" id="word-mode-btn" data-mode="words">Palavras</button>
                     </div>
                     <div class="mode-status" id="mode-status">Modo: Carregando...</div>
                 </div>
@@ -50,6 +58,10 @@
                     <div class="prediction-card" id="letter-card">
                         <div class="card-title">Letra Atual</div>
                         <div class="letter-display" id="current-letter">—</div>
+                        <div class="confidence-bar-wrapper">
+                            <div class="confidence-bar" id="confidence-bar"></div>
+                        </div>
+                        <div class="confidence-label" id="confidence-label">0%</div>
                     </div>
 
                     <div class="prediction-card" id="word-card">
@@ -67,12 +79,12 @@
                 <div class="controls-section">
                     <div class="controls">
                         <div class="camera-control">
-                            <button class="btn btn-primary" id="toggle-camera-btn">Start Camera</button>
+                            <button class="btn btn-primary" id="toggle-camera-btn">Iniciar Câmara</button>
                         </div>
                         <div class="text-controls">
-                            <button class="btn btn-secondary" id="reset-btn">Clear Text</button>
-                            <button class="btn btn-secondary" id="space-btn">Add Space</button>
-                            <button class="btn btn-secondary" id="backspace-btn">Backspace</button>
+                            <button class="btn btn-secondary" id="reset-btn">Limpar Texto</button>
+                            <button class="btn btn-secondary" id="space-btn">Espaço</button>
+                            <button class="btn btn-secondary" id="backspace-btn">Apagar</button>
                         </div>
                     </div>
                 </div>
