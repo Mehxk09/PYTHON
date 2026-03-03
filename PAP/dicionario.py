@@ -21,9 +21,12 @@ def get_alphabet_data():
         images = sorted([f for f in os.listdir(folder_path)
                         if f.lower().endswith(('.jpg', '.png', '.jpeg'))])
         if images:
+            # Prefer images with "exemplo" in the name (user-chosen display image)
+            exemplo = [f for f in images if "exemplo" in f.lower()]
+            chosen = exemplo[0] if exemplo else images[0]
             letters.append({
                 "letter": folder,
-                "image": images[0],
+                "image": chosen,
                 "count": len(images)
             })
     return letters
@@ -69,7 +72,8 @@ def serve_letter_image(letter, filename):
     path = os.path.join(LETTERS_DIR, safe_letter, filename)
     if not os.path.exists(path):
         abort(404)
-    return send_file(os.path.abspath(path), mimetype='image/jpeg')
+    mime = 'image/png' if path.lower().endswith('.png') else 'image/jpeg'
+    return send_file(os.path.abspath(path), mimetype=mime)
 
 
 @dicionario_bp.route('/dicionario/video/<word>/<filename>')
