@@ -33,7 +33,7 @@ def get_alphabet_data():
 
 
 def get_words_data():
-    """Get available words and their first sample video."""
+    """Get available words and their display video."""
     words = []
     if not os.path.exists(WORDS_DIR):
         return words
@@ -45,11 +45,14 @@ def get_words_data():
         videos = sorted([f for f in os.listdir(folder_path)
                         if f.lower().endswith('.mp4')])
         if videos:
+            # Prefer videos with "exemplo" in the name (user-chosen display video)
+            exemplo = [f for f in videos if "exemplo" in f.lower()]
+            chosen = exemplo[0] if exemplo else videos[0]
             display_name = folder.replace("_", " ")
             words.append({
                 "word": folder,
                 "display_name": display_name,
-                "video": videos[0],
+                "video": chosen,
                 "count": len(videos)
             })
     return words
@@ -83,3 +86,33 @@ def serve_word_video(word, filename):
     if not os.path.exists(path):
         abort(404)
     return send_file(os.path.abspath(path), mimetype='video/mp4')
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
