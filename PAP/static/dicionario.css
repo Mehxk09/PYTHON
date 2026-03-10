@@ -1,4 +1,4 @@
-/* ===== Dictionary Page Styles — Monochrome ===== */
+/* ===== Dictionary Page Styles — Dark Monochrome ===== */
 
 /* Override body overflow to allow scrolling on dictionary page */
 body.dict-page {
@@ -37,16 +37,16 @@ body.dict-page .gradient-bg {
     position: fixed;
     top: 1.2rem;
     left: 1.5rem;
-    color: rgba(0, 0, 0, 0.6);
+    color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
     font-size: 0.75rem;
     font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
     padding: 0.35rem 1rem;
-    border: 1px solid rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
-    background: rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.06);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     z-index: 100;
@@ -54,9 +54,9 @@ body.dict-page .gradient-bg {
 }
 
 .dict-back-link:hover {
-    background: rgba(255, 255, 255, 0.5);
-    color: #000;
-    border-color: rgba(0, 0, 0, 0.4);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.3);
     transform: translateY(-1px);
 }
 
@@ -66,8 +66,8 @@ body.dict-page .gradient-bg {
     gap: 0.5rem;
     justify-content: center;
     margin-bottom: 1.5rem;
-    background: rgba(0, 0, 0, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 0.5rem;
     backdrop-filter: blur(5px);
@@ -87,7 +87,7 @@ body.dict-page .gradient-bg {
     cursor: pointer;
     transition: all 0.3s ease;
     background: transparent;
-    color: rgba(0, 0, 0, 0.55);
+    color: rgba(255, 255, 255, 0.5);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     position: relative;
@@ -102,7 +102,7 @@ body.dict-page .gradient-bg {
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
     transition: left 0.5s ease;
 }
 
@@ -111,15 +111,15 @@ body.dict-page .gradient-bg {
 }
 
 .dict-tab:hover {
-    background: rgba(255, 255, 255, 0.3);
-    color: #000;
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
 }
 
 .dict-tab.active {
-    background: linear-gradient(135deg, rgba(255,255,255,0.7), rgba(0,0,0,0.08));
-    color: #000;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 /* Sections */
@@ -133,7 +133,7 @@ body.dict-page .gradient-bg {
 
 .dict-description {
     text-align: center;
-    color: rgba(0, 0, 0, 0.55);
+    color: rgba(255, 255, 255, 0.5);
     font-size: 0.85rem;
     margin-bottom: 1.5rem;
     line-height: 1.5;
@@ -155,11 +155,11 @@ body.dict-page .gradient-bg {
 
 /* Cards */
 .dict-card {
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 14px;
     overflow: hidden;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
@@ -169,8 +169,8 @@ body.dict-page .gradient-bg {
 
 .dict-card:hover {
     transform: translateY(-6px) scale(1.02);
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.14);
-    border-color: rgba(0, 0, 0, 0.2);
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(255, 255, 255, 0.2);
 }
 
 .dict-card:active {
@@ -194,7 +194,7 @@ body.dict-page .gradient-bg {
     position: absolute;
     width: 10px;
     height: 10px;
-    background: rgba(0, 0, 0, 0.12);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 50%;
     transform: translate(-50%, -50%) scale(0);
     animation: rippleExpand 0.6s ease-out forwards;
@@ -213,7 +213,7 @@ body.dict-page .gradient-bg {
     position: absolute;
     inset: 0;
     border-radius: 14px;
-    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.2), transparent 60%);
+    background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(255,255,255,0.08), transparent 60%);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -228,7 +228,7 @@ body.dict-page .gradient-bg {
     width: 100%;
     aspect-ratio: 1 / 1;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(0, 0, 0, 0.15);
 }
 
 .dict-card-image img {
@@ -240,7 +240,7 @@ body.dict-page .gradient-bg {
 
 .dict-card:hover .dict-card-image img {
     transform: scale(1.08);
-    filter: brightness(1.05);
+    filter: brightness(1.1);
 }
 
 /* Word Card Video */
@@ -248,7 +248,7 @@ body.dict-page .gradient-bg {
     width: 100%;
     aspect-ratio: 4 / 3;
     overflow: hidden;
-    background: rgba(0, 0, 0, 0.06);
+    background: rgba(0, 0, 0, 0.2);
     position: relative;
     cursor: pointer;
 }
@@ -267,16 +267,16 @@ body.dict-page .gradient-bg {
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
-    color: rgba(255, 255, 255, 0.9);
-    background: rgba(0, 0, 0, 0.25);
+    color: rgba(255, 255, 255, 0.8);
+    background: rgba(0, 0, 0, 0.3);
     transition: all 0.3s ease;
     pointer-events: none;
 }
 
 .dict-card:hover .play-overlay {
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.45);
     font-size: 3rem;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
 }
 
 .dict-card:hover .dict-card-video video {
@@ -289,14 +289,14 @@ body.dict-page .gradient-bg {
     padding: 0.6rem 0.5rem;
     font-size: 1rem;
     font-weight: 700;
-    color: #111;
+    color: #e0e0e0;
     text-transform: uppercase;
     letter-spacing: 0.15em;
     transition: all 0.3s ease;
 }
 
 .dict-card:hover .dict-card-label {
-    color: #000;
+    color: #fff;
     letter-spacing: 0.2em;
 }
 
@@ -311,7 +311,7 @@ body.dict-page .gradient-bg {
     position: fixed;
     inset: 0;
     z-index: 9000;
-    background: rgba(0, 0, 0, 0.6);
+    background: rgba(0, 0, 0, 0.7);
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
     display: flex;
@@ -327,13 +327,13 @@ body.dict-page .gradient-bg {
 }
 
 .dict-modal-content {
-    background: rgba(30, 30, 30, 0.6);
-    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(30, 30, 30, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 20px;
     padding: 1rem;
     max-width: 500px;
     width: 90%;
-    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
     transform: scale(0.9);
     transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     backdrop-filter: blur(10px);
@@ -348,7 +348,7 @@ body.dict-page .gradient-bg {
     width: 100%;
     height: auto;
     border-radius: 14px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
 }
 
 .dict-modal-label {
@@ -359,14 +359,14 @@ body.dict-page .gradient-bg {
     text-transform: uppercase;
     letter-spacing: 0.2em;
     margin-top: 0.8rem;
-    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
 }
 
 /* Empty / Coming Soon */
 .dict-empty {
     grid-column: 1 / -1;
     text-align: center;
-    color: rgba(0, 0, 0, 0.4);
+    color: rgba(255, 255, 255, 0.35);
     font-size: 0.85rem;
     padding: 2rem;
 }
@@ -375,10 +375,10 @@ body.dict-page .gradient-bg {
     margin-top: 2rem;
     text-align: center;
     padding: 1.2rem 1.5rem;
-    background: rgba(0, 0, 0, 0.04);
-    border: 1px dashed rgba(0, 0, 0, 0.15);
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed rgba(255, 255, 255, 0.1);
     border-radius: 12px;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 0.85rem;
 }
 
@@ -386,7 +386,7 @@ body.dict-page .gradient-bg {
 .dict-footer {
     text-align: center;
     padding: 2rem 0 1rem;
-    color: rgba(0, 0, 0, 0.35);
+    color: rgba(255, 255, 255, 0.3);
     font-size: 0.75rem;
     letter-spacing: 0.05em;
 }
@@ -397,16 +397,16 @@ body.dict-page::-webkit-scrollbar {
 }
 
 body.dict-page::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.03);
+    background: rgba(255, 255, 255, 0.02);
 }
 
 body.dict-page::-webkit-scrollbar-thumb {
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }
 
 body.dict-page::-webkit-scrollbar-thumb:hover {
-    background: rgba(0, 0, 0, 0.35);
+    background: rgba(255, 255, 255, 0.25);
 }
 
 /* Responsive */
