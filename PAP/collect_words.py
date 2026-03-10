@@ -2,11 +2,35 @@ import cv2
 import os
 import time
 import sys
+import subprocess
 import mediapipe as mp
+import imageio_ffmpeg
 
 # Configuration
 FPS = 30
 MAX_RECORDING_TIME = 5
+
+# Get bundled ffmpeg path
+FFMPEG_PATH = imageio_ffmpeg.get_ffmpeg_exe()
+
+def convert_to_h264(input_path):
+    """Convert mp4v video to H.264 so browsers can play it."""
+    temp_path = input_path.replace(".mp4", "_h264.mp4")
+    try:
+        subprocess.run([
+            FFMPEG_PATH, "-y",
+            "-i", input_path,
+            "-vcodec", "libx264",
+            "-acodec", "aac",
+            temp_path
+        ], capture_output=True, timeout=30)
+        os.remove(input_path)
+        os.rename(temp_path, input_path)
+        print(f"  -> Converted to H.264: {os.path.basename(input_path)}")
+    except Exception as e:
+        print(f"  -> Convert failed: {e}")
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 if len(sys.argv) < 2:
     print("Usage: python collect_words.py <WORD_OR_PHRASE>")
@@ -115,6 +139,7 @@ while True:
 
             sample_count += 1
             print(f"Recording stopped. Sample count: {sample_count}")
+            convert_to_h264(video_path)
 
     # s: stop + save (same as stopping)
     elif key == ord('s') and recording:
@@ -125,6 +150,7 @@ while True:
 
         sample_count += 1
         print(f"Saved recording. Sample count: {sample_count}")
+        convert_to_h264(video_path)
 
     elif key == ord('q'):
         break
@@ -141,6 +167,7 @@ while True:
             video_writer = None
             sample_count += 1
             print(f"Auto-stopped after {MAX_RECORDING_TIME} seconds. Sample count: {sample_count}")
+            convert_to_h264(video_path)
 
     cv2.imshow("Record Moving Hand Signs (MP4 only)", frame)
 
