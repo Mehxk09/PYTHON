@@ -351,12 +351,12 @@ function updateConfidenceBar(confidence) {
     bar.style.width = pct + '%';
     label.textContent = pct + '%';
 
-    // Change color based on confidence level
+    // Change color based on confidence level (monochrome)
     if (pct >= 70) {
-        bar.style.background = 'linear-gradient(90deg, #2d8a4e, #153d13)';
+        bar.style.background = 'linear-gradient(90deg, #333, #111)';
     } else if (pct >= 40) {
-        bar.style.background = 'linear-gradient(90deg, #8a8a2d, #5a6b1a)';
+        bar.style.background = 'linear-gradient(90deg, #777, #444)';
     } else {
-        bar.style.background = 'linear-gradient(90deg, #8a4a2d, #6b2a1a)';
+        bar.style.background = 'linear-gradient(90deg, #aaa, #777)';
     }
 }
