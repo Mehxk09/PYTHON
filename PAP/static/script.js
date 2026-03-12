@@ -325,7 +325,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // One initial prediction update
     updatePredictions();
 
-    // 4. Button ripple effect on all buttons
+    // Button ripple effect on all buttons
     document.querySelectorAll('.btn').forEach(btn => {
         btn.addEventListener('click', function (e) {
             const ripple = document.createElement('span');
@@ -341,7 +341,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-// 7. Update confidence bar
+// Update confidence bar
 function updateConfidenceBar(confidence) {
     const bar = document.getElementById('confidence-bar');
     const label = document.getElementById('confidence-label');
