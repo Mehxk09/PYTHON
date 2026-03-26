@@ -24,7 +24,9 @@ body {
 /* Sky background */
 .gradient-bg {
     position: fixed;
-    inset: 0;
+    /* Make the background slightly larger so the mouse-parallax
+       (transform translate) never reveals the edges. */
+    inset: -25px;
     z-index: -2;
     background: linear-gradient(180deg, #0a1628 0%, #0d1f40 20%, #163a6e 45%, #1e4f8a 65%, #2563a8 85%, #2e72b8 100%);
     overflow: hidden;
@@ -87,7 +89,7 @@ body {
     position: fixed;
     top: 1.2rem;
     right: 1.5rem;
-    color: rgba(0, 0, 0, 0.871);
+    color: rgba(255, 255, 255, 0.92);
     text-decoration: none;
     font-size: 0.70rem;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -102,6 +104,10 @@ body {
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
     z-index: 100;
+}
+
+.dict-nav-link:visited {
+    color: rgba(255, 255, 255, 0.92);
 }
 
 .dict-nav-link:hover {
@@ -275,7 +281,7 @@ body {
     align-items: center;
     justify-content: center;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(186, 12, 12, 0.05);
     border: 2px solid rgba(255, 255, 255, 0.1);
     transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
     animation: iconFloat 3s ease-in-out infinite;
@@ -332,7 +338,7 @@ body {
 .mode-toggle {
     display: flex;
     gap: 0.5rem;
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(68, 57, 106, 0.449);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 0.5rem;
@@ -349,7 +355,7 @@ body {
     font-weight: 700;
     transition: all 0.3s ease;
     background: transparent;
-    color: rgba(0, 0, 0, 0.87);
+    color: rgb(8, 10, 39);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     cursor: pointer;
@@ -381,7 +387,7 @@ body {
 .mode-status {
     text-align: center;
     font-size: 0.7rem;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgb(189, 191, 219);
     font-weight: 500;
     text-transform: uppercase;
     letter-spacing: 0.1em;
@@ -399,7 +405,7 @@ body {
 }
 
 .prediction-card {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(208, 33, 33, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 12px;
     padding: 0.75rem 1rem;
@@ -433,7 +439,7 @@ body {
 }
 
 .card-title {
-    color: rgba(0, 0, 0, 0.83);
+    color: rgb(8, 10, 39);
     margin-bottom: 0.6rem;
     font-size: 0.85rem;
     text-transform: uppercase;
@@ -447,7 +453,7 @@ body {
     margin: 0.2rem 0;
     letter-spacing: 0.15em;
     transition: all 0.3s ease;
-    background: linear-gradient(135deg, #000000, #000000, #000000, #6f6b6b, #fff);
+    background: linear-gradient(135deg, #0d0e2a, #15082e, #867c98, #dad7e6, #fff);
     background-size: 200% 200%;
     background-clip: text;
     -webkit-background-clip: text;
@@ -465,7 +471,7 @@ body {
 .confidence-bar-wrapper {
     width: 100%;
     height: 6px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(177, 158, 158, 0.08);
     border-radius: 3px;
     margin-top: 0.5rem;
     overflow: hidden;
@@ -498,7 +504,7 @@ body {
 #predicted-word::after {
     content: '|';
     animation: blinkCursor 1s step-end infinite;
-    color: #ccc;
+    color: #13132a;
     font-weight: 300;
     margin-left: 2px;
 }
@@ -527,7 +533,7 @@ body {
 .btn-ripple {
     position: absolute;
     border-radius: 50%;
-    background: rgba(255, 255, 255, 0.5);
+    background: rgba(21, 20, 52, 0.5);
     transform: scale(0);
     animation: btnRipple 0.6s ease-out forwards;
     pointer-events: none;
@@ -566,8 +572,8 @@ body {
     justify-content: center;
     flex-wrap: wrap;
     padding: 1rem;
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
     backdrop-filter: blur(5px);
@@ -576,7 +582,7 @@ body {
 
 .btn {
     padding: 12px 24px;
-    border: none;
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-radius: 999px;
     font-size: 0.8rem;
     font-weight: 700;
@@ -585,13 +591,15 @@ body {
     overflow: hidden;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #000000;
+    color: rgb(8, 10, 39);
     backdrop-filter: blur(10px);
     min-width: 130px;
     margin: 2px;
     height: auto;
     flex-shrink: 0;
     flex-grow: 0;
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
 }
 
 .btn::before {
@@ -610,30 +618,31 @@ body {
 }
 
 .btn-primary {
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(255, 255, 255, 0.05);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-primary:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-    background: rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.08);
+    color: rgb(250, 250, 250);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
 }
 
 .btn-secondary {
-    background: transparent;
-    color: #000000;
+    background: rgba(255, 255, 255, 0.05);
+    color: rgb(8, 10, 39);
     font-weight: 700;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15);
 }
 
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.08);
-    color: #d0d0d0;
-    border-color: rgba(255, 255, 255, 0.25);
-    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    color: rgb(250, 250, 250);
+    border-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 25px 45px rgba(0, 0, 0, 0.25);
 }
 
 /* Footer */
@@ -641,13 +650,13 @@ body {
     text-align: center;
     margin-top: 0.75rem;
     padding: 0.5rem;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    color: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(252, 249, 249, 0.301);
+    color: rgba(3, 6, 26, 0.842);
     font-size: 0.75rem;
     flex-shrink: 0;
     backdrop-filter: blur(5px);
     -webkit-backdrop-filter: blur(5px);
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(70, 112, 183, 0.288);
     border-radius: 12px;
 }
 
