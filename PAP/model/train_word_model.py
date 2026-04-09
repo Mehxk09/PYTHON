@@ -4,7 +4,7 @@ import numpy as np
 import mediapipe as mp
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.layers import Dense, Dropout, LSTM
-from tensorflow.keras.callbacks import EarlyStopping, ModelCheckpoint
+from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.utils import to_categorical
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
@@ -19,30 +19,29 @@ SEQUENCE_LENGTH = 20  # Must match app.py
 mp_hands = mp.solutions.hands
 
 
+def _normalize_primary_hand_flat(lm):
+    """Wrist-centered + scale (same idea as letter model). Must match app.extract_landmarks_for_word."""
+    pts = np.array([[p.x, p.y, p.z] for p in lm.landmark], dtype=np.float32)
+    wrist = pts[0].copy()
+    pts = pts - wrist
+    minxy = pts[:, :2].min(axis=0)
+    maxxy = pts[:, :2].max(axis=0)
+    box = (maxxy - minxy).max()
+    if box == 0:
+        box = 1.0
+    pts[:, :2] /= box
+    return pts.flatten()
+
+
 def extract_landmarks_from_frame(frame, hands):
-    """Extract raw landmarks from a single frame (no normalization)."""
+    """Primary hand per frame, normalized — must match app.py word mode."""
     img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
     results = hands.process(img_rgb)
 
     if not results.multi_hand_landmarks:
         return None
 
-    pts = []
-    for hand_landmarks in results.multi_hand_landmarks:
-        for lm in hand_landmarks.landmark:
-            pts.append([lm.x, lm.y, lm.z])
-
-    pts = np.array(pts, dtype=np.float32)
-
-    # Keep only first 21 landmarks (one hand)
-    if pts.shape[0] >= 21:
-        pts = pts[:21]
-    else:
-        padded = np.zeros((21, 3), dtype=np.float32)
-        padded[:pts.shape[0]] = pts
-        pts = padded
-
-    return pts.flatten()  # (63,)
+    return _normalize_primary_hand_flat(results.multi_hand_landmarks[0])
 
 
 def extract_landmarks_from_video(video_path):
@@ -54,9 +53,9 @@ def extract_landmarks_from_video(video_path):
     sequence = []
     hands = mp_hands.Hands(
         static_image_mode=False,
-        max_num_hands=2,
+        max_num_hands=1,
         min_detection_confidence=0.5,
-        min_tracking_confidence=0.5
+        min_tracking_confidence=0.5,
     )
 
     while True:
@@ -176,8 +175,13 @@ def main():
     # Callbacks for better training
     os.makedirs("model", exist_ok=True)
     callbacks = [
-        EarlyStopping(monitor='val_loss', patience=15, restore_best_weights=True),
-        ModelCheckpoint(MODEL_OUT, monitor='val_accuracy', save_best_only=True, verbose=1)
+        EarlyStopping(
+            monitor="val_accuracy",
+            mode="max",
+            patience=15,
+            restore_best_weights=True,
+            verbose=1,
+        ),
     ]
 
     model.fit(
@@ -188,7 +192,6 @@ def main():
         callbacks=callbacks
     )
 
-    # Save final model (best weights already saved via checkpoint)
     model.save(MODEL_OUT)
 
     with open(LABEL_OUT, "wb") as f:

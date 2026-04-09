@@ -49,6 +49,8 @@ def get_words_data():
             exemplo = [f for f in videos if "exemplo" in f.lower()]
             chosen = exemplo[0] if exemplo else videos[0]
             display_name = folder.replace("_", " ")
+            if folder == "Nao":
+                display_name = "Não"
             words.append({
                 "word": folder,
                 "display_name": display_name,

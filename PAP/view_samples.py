@@ -43,9 +43,9 @@ def view_video(video_path):
             
             # Add info overlay
             cv2.putText(frame, f"Frame: {frame_count}/{total_frames}", (10, 30),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
             cv2.putText(frame, "Press 'q' to quit, SPACE to pause", (10, 60),
-                       cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 1)
             
             cv2.imshow("Video Player", frame)
         

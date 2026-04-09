@@ -66,10 +66,21 @@ BUFFER_SIZE = 5  # number of frames to confirm a letter
 
 # Word detection settings
 SEQUENCE_LENGTH = 20  # Reduced from 30 for faster detection
-word_recording_buffer = deque(maxlen=SEQUENCE_LENGTH * 2)
+word_recording_buffer = deque(maxlen=SEQUENCE_LENGTH)  # match on-screen (n/20); was *2 and showed past 20
 last_word_prediction_time = 0
-WORD_PREDICTION_COOLDOWN = 1.5  # Seconds between word predictions
-MIN_RECORDING_FRAMES = 8  # Minimum frames needed before predicting
+WORD_PREDICTION_COOLDOWN = 2.0  # Seconds between word predictions
+MIN_RECORDING_FRAMES = 15  # Minimum frames needed before predicting
+WORD_CONFIDENCE_MIN = 0.35  
+
+# Model label (folder/encoder) -> spelling in UI; training files stay as "Nao"
+WORD_LABEL_DISPLAY = {"Nao": "Não"}
+
+
+def word_label_display(label):
+    if label in ("-", "", None):
+        return label
+    return WORD_LABEL_DISPLAY.get(str(label), str(label))
+
 
 # Performance optimization
 PREDICTION_THROTTLE = 0.12  # Predict every 0.12 seconds (~8 FPS for predictions)
@@ -87,7 +98,7 @@ mp_draw = mp.solutions.drawing_utils
 
 hands = mp_hands.Hands(
     static_image_mode=False,
-    max_num_hands=2,  # Support 2 hands for words
+    max_num_hands=1,  # Same as word training — stable primary signing hand
     min_detection_confidence=0.5,
     min_tracking_confidence=0.5
 )
@@ -117,31 +128,21 @@ def extract_landmarks_for_letter(results):
 
 
 def extract_landmarks_for_word(results):
-    """Extract landmarks for word prediction (supports two hands).
-    MUST match the preprocessing in train_word_model.py exactly (no normalization)."""
+    """Primary hand, wrist-normalized — must match model/train_word_model.py."""
     if not results.multi_hand_landmarks:
         return None
 
-    # Combine landmarks from all detected hands (raw coordinates)
-    pts = []
-    for hand_landmarks in results.multi_hand_landmarks:
-        for lm in hand_landmarks.landmark:
-            pts.append([lm.x, lm.y, lm.z])
-
-    if len(pts) == 0:
-        return None
-
-    pts = np.array(pts, dtype=np.float32)
-
-    # Keep only first 21 landmarks (single hand) to match training
-    if pts.shape[0] >= 21:
-        pts = pts[:21]
-    else:
-        padded = np.zeros((21, 3), dtype=np.float32)
-        padded[:pts.shape[0]] = pts
-        pts = padded
-
-    return pts.flatten()  # Returns (63,) — raw, no normalization
+    lm = results.multi_hand_landmarks[0]
+    pts = np.array([[p.x, p.y, p.z] for p in lm.landmark], dtype=np.float32)
+    wrist = pts[0].copy()
+    pts = pts - wrist
+    minxy = pts[:, :2].min(axis=0)
+    maxxy = pts[:, :2].max(axis=0)
+    box = (maxxy - minxy).max()
+    if box == 0:
+        box = 1.0
+    pts[:, :2] /= box
+    return pts.flatten()
 
 
 def prepare_word_sequence(buffer):
@@ -184,6 +185,7 @@ def gen_frames():
     consecutive_failures = 0
     MAX_FAILURES = 30  # After 30 failed reads, reopen camera
     frame_count = 0
+    last_results = None  # when MediaPipe skips a frame, reuse hand pose so word buffer still grows
 
     try:
         cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)  # DirectShow is more stable on Windows
@@ -232,6 +234,9 @@ def gen_frames():
             if run_mediapipe:
                 img_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                 results = hands.process(img_rgb)
+                last_results = results
+            else:
+                results = last_results
 
             # Draw landmarks (use cached results if skipping)
             if results and results.multi_hand_landmarks:
@@ -262,14 +267,16 @@ def gen_frames():
                                 word = word_label_encoder.classes_[idx]
                                 conf = float(probs[idx])
 
-                                if conf > 0.55:
-                                    current_word = word
-                                    current_confidence = conf
+                                last_word_prediction_time = now
+                                current_word = word_label_display(word)
+                                current_confidence = conf
+                                if conf >= WORD_CONFIDENCE_MIN:
                                     if not detected_words or detected_words[-1] != word:
                                         detected_words.append(word)
-                                        predicted_word += word + " "
-                                        print(f"Detected word: {word} ({conf:.2f})")
-                                    last_word_prediction_time = now
+                                        predicted_word += word_label_display(word) + " "
+                                        print(
+                                            f"Detected word: {word_label_display(word)} ({conf:.2f})"
+                                        )
                                     word_recording_buffer.clear()
 
             # ---- Letter detection mode (processing) ----
@@ -311,7 +318,8 @@ def gen_frames():
             frame_w = frame.shape[1]
 
             if current_mode == "words" and word_model is not None:
-                status_text = f"Word: {current_word}"
+                wshow = "—" if current_word in ("-", "", None) else current_word
+                status_text = f"Word: {wshow}"
                 buf_len = len(word_recording_buffer)
                 if buf_len > 0:
                     status_text += f" ({buf_len}/{SEQUENCE_LENGTH})"
@@ -324,7 +332,9 @@ def gen_frames():
                 cv2.putText(frame, status_text, (tx, 35),
                             cv2.FONT_HERSHEY_SIMPLEX, 0.6, (0, 0, 0), 2)
 
-                recent = " ".join(detected_words[-3:])
+                recent = " ".join(
+                    word_label_display(w) for w in detected_words[-3:]
+                )
                 if recent:
                     if len(recent) > 25:
                         recent = recent[:22] + "..."
@@ -385,7 +395,7 @@ def get_prediction():
         "current_letter": current_letter if current_mode == "letters" else "-",
         "current_word": current_word if current_mode == "words" else "-",
         "predicted_word": predicted_word,
-        "detected_words": detected_words,
+        "detected_words": [word_label_display(w) for w in detected_words],
         "mode": current_mode,
         "confidence": round(current_confidence, 2),
         "has_letter_model": letter_model is not None,
