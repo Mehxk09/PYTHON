@@ -344,6 +344,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Como usar (? modal) + entrada inicial (splash) a cair de cima
 (function initHelpModal() {
+    const SPLASH_KEY = 'signify_help_splash_seen';
+
+    function hasSeenSplash() {
+        try {
+            return localStorage.getItem(SPLASH_KEY) === '1';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function markSplashSeen() {
+        try {
+            localStorage.setItem(SPLASH_KEY, '1');
+        } catch (e) { /* private mode / quota */ }
+    }
+
     const btn = document.getElementById('help-btn');
     const modal = document.getElementById('help-modal');
     if (!modal) return;
@@ -382,6 +398,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function finish() {
             if (finished) return;
             finished = true;
+            markSplashSeen();
             closeModal();
         }
         if (stack) {
@@ -394,9 +411,13 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(finish, 600);
     }
 
-    // Entrada: mostrar “Como usar” ao abrir o site
-    modal.hidden = false;
-    modal.classList.add('help-modal--splash');
+    // Entrada automática: só na primeira vez (depois de fechar o splash, não voltar a mostrar ao regressar de outras páginas)
+    if (hasSeenSplash()) {
+        modal.hidden = true;
+    } else {
+        modal.hidden = false;
+        modal.classList.add('help-modal--splash');
+    }
 
     modal.addEventListener('click', function (e) {
         if (modal.hidden) return;
