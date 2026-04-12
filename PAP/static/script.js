@@ -5,7 +5,8 @@ document.addEventListener('mousemove', (e) => {
     gradientThrottle = true;
     requestAnimationFrame(() => {
         const gradientBg = document.querySelector('.gradient-bg');
-        if (gradientBg) {
+        // Dictionary page: fixed bg is full-viewport; parallax would reveal html/body behind edges.
+        if (gradientBg && !document.body.classList.contains('dict-page')) {
             const x = e.clientX / window.innerWidth;
             const y = e.clientY / window.innerHeight;
             gradientBg.style.transform = `translate(${x * 20 - 10}px, ${y * 20 - 10}px)`;
@@ -340,6 +341,100 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 });
+
+// Como usar (? modal) + entrada inicial (splash) a cair de cima
+(function initHelpModal() {
+    const btn = document.getElementById('help-btn');
+    const modal = document.getElementById('help-modal');
+    if (!modal) return;
+
+    const backdrop = modal.querySelector('.help-modal__backdrop');
+    const closeBtn = modal.querySelector('.help-modal__close');
+    const stack = modal.querySelector('.help-modal__stack');
+
+    function closeModal() {
+        modal.hidden = true;
+        modal.classList.remove('help-modal--splash', 'help-modal--leave', 'help-modal--drop');
+        if (btn) btn.focus();
+    }
+
+    /** Abrir pelo botão ? — mesmo efeito de queda que ao carregar a página */
+    function openModalFromButton() {
+        modal.classList.remove('help-modal--splash', 'help-modal--leave', 'help-modal--drop');
+        modal.hidden = false;
+        void modal.offsetWidth;
+        modal.classList.add('help-modal--drop');
+        function onDropInEnd(e) {
+            if (e.target !== stack || e.animationName !== 'helpSplashIn') return;
+            stack.removeEventListener('animationend', onDropInEnd);
+            if (!modal.hidden) modal.classList.remove('help-modal--drop');
+        }
+        if (stack) stack.addEventListener('animationend', onDropInEnd);
+        if (closeBtn) closeBtn.focus();
+    }
+
+    function dismissSplash() {
+        if (!modal.classList.contains('help-modal--splash') || modal.classList.contains('help-modal--leave')) {
+            return;
+        }
+        modal.classList.add('help-modal--leave');
+        let finished = false;
+        function finish() {
+            if (finished) return;
+            finished = true;
+            closeModal();
+        }
+        if (stack) {
+            stack.addEventListener('animationend', function onEnd(e) {
+                if (e.animationName !== 'helpSplashOut') return;
+                stack.removeEventListener('animationend', onEnd);
+                finish();
+            });
+        }
+        setTimeout(finish, 600);
+    }
+
+    // Entrada: mostrar “Como usar” ao abrir o site
+    modal.hidden = false;
+    modal.classList.add('help-modal--splash');
+
+    modal.addEventListener('click', function (e) {
+        if (modal.hidden) return;
+        if (modal.classList.contains('help-modal--splash') && !modal.classList.contains('help-modal--leave')) {
+            dismissSplash();
+            return;
+        }
+        if (e.target === backdrop) closeModal();
+    });
+
+    if (closeBtn) {
+        closeBtn.addEventListener('click', function (e) {
+            e.stopPropagation();
+            if (modal.classList.contains('help-modal--splash') && !modal.classList.contains('help-modal--leave')) {
+                dismissSplash();
+            } else {
+                closeModal();
+            }
+        });
+    }
+
+    if (btn) {
+        btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            openModalFromButton();
+        });
+    }
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key !== 'Escape' || modal.hidden) return;
+        if (modal.classList.contains('help-modal--splash') && !modal.classList.contains('help-modal--leave')) {
+            dismissSplash();
+        } else {
+            closeModal();
+        }
+    });
+})();
 
 // Update confidence bar
 function updateConfidenceBar(confidence) {

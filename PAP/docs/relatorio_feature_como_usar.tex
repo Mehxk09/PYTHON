@@ -1,0 +1,187 @@
+% =============================================================================
+% Signify — Documentação LaTeX da funcionalidade «Como usar» (modal de ajuda)
+% Copiar cada bloco para o sítio indicado no comentário (main.tex ou capítulos).
+% Imagens: guardar capturas em PAP/ (ou pasta imagens do relatório) e ajustar nomes.
+% =============================================================================
+
+% -----------------------------------------------------------------------------
+% 1) SUMÁRIO (resumo) — acrescentar UMA frase ao parágrafo final da interface, se couber
+%    Colar: no fim do parágrafo que fala da interface Flask / dicionário.
+% -----------------------------------------------------------------------------
+% Texto sugerido (integrar numa frase já existente ou acrescentar):
+% «A interface inclui ainda um modal de ajuda (“Como usar”) e um ecrã inicial
+% (splash) na primeira visita, com instruções de utilização e um aviso legal.»
+
+
+% -----------------------------------------------------------------------------
+% 2) OBJETIVOS ESPECÍFICOS — subsecção «Interface web»
+%    Colar: dentro do \item da interface web, como segunda frase OU novo \item estreito.
+% -----------------------------------------------------------------------------
+% Exemplo de extensão do item «Interface web» (fundir com o teu texto):
+%
+% \item \textbf{Interface web}: criar uma interface intuitiva com Flask, HTML, CSS e JavaScript
+% que permita [...]. Para facilitar a primeira utilização, a página principal deve incluir
+% um \textbf{modal de ajuda} acessível por um botão dedicado e, na primeira visita, um
+% \textbf{ecrã inicial} com as mesmas instruções e um convite a continuar.
+
+
+% -----------------------------------------------------------------------------
+% 3) CAPÍTULO 3 — Análise de Requisitos — Requisitos Funcionais
+%    Colar: dentro do item «Interface Web interativa», no \begin{itemize} aninhado,
+%    APÓS o item do dicionário (ou antes do fecho do item pai).
+% -----------------------------------------------------------------------------
+        \item \textbf{Ajuda e primeira utilização:} disponibilizar um botão de ajuda
+        (\texttt{?}) que abre um diálogo modal com instruções de utilização (câmara,
+        modos Letras/Palavras, áreas de previsão, botões de edição e referência ao
+        Dicionário), acompanhado de um \textbf{aviso legal} sobre fins educativos e
+        limitações do reconhecimento. Na \textbf{primeira visita} à aplicação, deve ser
+        apresentado automaticamente o mesmo conteúdo num \textit{splash screen}, com
+        indicação para continuar (por exemplo, clicar em qualquer sítio ou premir
+        \texttt{Esc}), sem necessidade de novas rotas no servidor Flask.
+
+
+% -----------------------------------------------------------------------------
+% 4) CAPÍTULO 3 — Arquitetura — Camada de Apresentação (Interface Web)
+%    Colar: novo \item na lista existente (após «Permitir controlo do sistema»).
+% -----------------------------------------------------------------------------
+    \item \textbf{Ajuda integrada no cliente:} o HTML/CSS/JavaScript implementam um
+    diálogo acessível (\texttt{role="dialog"}, \texttt{aria-modal}, foco no botão de
+    fechar) e animações de entrada/saída; toda a lógica de abertura do \textit{splash}
+    inicial, fecho por teclado e reabertura pelo botão \texttt{?} corre no navegador,
+    \textbf{sem endpoints adicionais} no Flask.
+
+
+% -----------------------------------------------------------------------------
+% 5) CAPÍTULO 3 — Implementação — Interface Web: \texttt{index.html}
+%    Colar: APÓS o parágrafo que descreve a interface principal (ou substituir o trecho
+%    desatualizado do \texttt{minted} por uma nota + excerto reduzido).
+%    Imagem: captura do ecrã com o modal ou o splash visível.
+% -----------------------------------------------------------------------------
+
+\subsubsection{Modal de ajuda e estrutura em \texttt{index.html}}
+
+Para além da área principal (câmara, previsões e controlos), a página inclui um
+\textbf{botão de ajuda} no canto superior esquerdo (\texttt{\#help-btn}), com o texto
+\texttt{?}, e o marcado do \textbf{modal} (\texttt{\#help-modal}). O conteúdo do
+diálogo está organizado numa pilha vertical (\texttt{help-modal\_\_stack}): o
+\textbf{painel} (\texttt{help-modal\_\_panel}) concentra o título «Como usar», a
+introdução, a lista de pontos e o aviso legal; \textbf{abaixo do cartão}, mas ainda
+no mesmo grupo animado, surge a linha de continuação do \textit{splash} inicial
+(\texttt{help-modal\_\_tap}), visível apenas na primeira visita. O fundo escurecido
+(\texttt{help-modal\_\_backdrop}) cobre o ecrã por detrás do cartão.
+
+% --- FIGURA: substituir o nome do ficheiro pela tua captura (ex.: SS_help_splash.png) ---
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{imagens/SS_help_splash.png}
+    \caption{Primeira visita: ecrã inicial com instruções e convite a continuar (splash).}
+    \label{fig:help_splash}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{imagens/SS_help_modal.png}
+    \caption{Modal «Como usar» aberto a partir do botão \texttt{?} (rever ajuda a qualquer momento).}
+    \label{fig:help_modal}
+\end{figure}
+
+O excerto seguinte mostra, de forma resumida, a hierarquia dos elementos do modal
+(o ficheiro completo no repositório inclui ainda o \texttt{container} principal e o
+script associado):
+
+\begin{minted}[breaklines]{html}
+<!-- Botão ? + modal (resumo) -->
+<button type="button" class="help-nav-btn" id="help-btn" ...>?</button>
+<div id="help-modal" class="help-modal" role="dialog" aria-modal="true" ... hidden>
+    <div class="help-modal__backdrop" tabindex="-1"></div>
+    <div class="help-modal__stack">
+        <div class="help-modal__panel">
+            <button type="button" class="help-modal__close" aria-label="Fechar">×</button>
+            <h2 id="help-modal-title" class="help-modal__title">Como usar</h2>
+            <!-- intro, lista de pontos, nota legal -->
+        </div>
+        <p class="help-modal__tap" id="help-modal-tap">Clica em qualquer sítio para continuar</p>
+    </div>
+</div>
+\end{minted}
+
+
+% -----------------------------------------------------------------------------
+% 6) CAPÍTULO 3 — \texttt{style.css}
+%    Colar: nova \subsubsection{...} após a que já tens sobre o CSS da página principal,
+%    OU um parágrafo curto no final da subsecção existente.
+% -----------------------------------------------------------------------------
+
+\subsubsection{Aspeto visual do modal de ajuda (\texttt{style.css})}
+
+As classes \texttt{.help-modal}, \texttt{.help-modal\_\_panel} e
+\texttt{.help-modal\_\_stack} definem o posicionamento em sobreposição
+(\texttt{position: fixed}), o painel com cantos arredondados e o empilhamento do
+cartão e da linha «clica para continuar». As animações \texttt{helpSplashIn} e
+\texttt{helpSplashOut} aplicam-se ao \textbf{stack} completo, de modo que o cartão
+e a linha inferior se movimentam em conjunto na entrada e na saída do modo
+\textit{splash}. A linha de \textit{tap} só é exibida quando o modal está na variante
+\texttt{help-modal--splash}; em sessões normais, o utilizador volta a abrir apenas o
+cartão através do botão \texttt{?}.
+
+% --- FIGURA opcional: podes omitir se já mostraste o modal nas figuras anteriores ---
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.92\linewidth]{imagens/SS_help_modal_detalhe.png}
+    \caption{Detalhe do modal de ajuda (layout, tipografia e aviso legal). Opcional se repetir conteúdo.}
+    \label{fig:help_modal_detalhe}
+\end{figure}
+
+
+% -----------------------------------------------------------------------------
+% 7) CAPÍTULO 3 — \texttt{script.js}
+%    Colar: \subsubsection ou parágrafos após a explicação do polling / botões.
+% -----------------------------------------------------------------------------
+
+\subsubsection{Lógica do modal de ajuda (\texttt{script.js})}
+
+Foi implementada uma função de inicialização (\texttt{initHelpModal}) que: (1) na
+carga da página, torna o modal visível com a classe \texttt{help-modal--splash} e
+permite fechar o \textit{splash} com clique no fundo, no botão de fechar ou com a
+tecla \texttt{Esc}; (2) associa o botão \texttt{?} à reabertura do conteúdo de ajuda
+sem o modo \textit{splash}, aplicando temporariamente a classe
+\texttt{help-modal--drop} para repetir a animação de entrada; (3) remove classes
+auxiliares após as animações terminarem, evitando estados inconsistentes. Esta
+lógica é independente do ciclo de pedidos a \texttt{/get\_prediction}.
+
+% --- FIGURA opcional: screenshot do ? no canto OU diagrama; podes omitir ---
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=0.5\linewidth]{imagens/SS_help_btn.png}
+%     \caption{Botão \texttt{?} no canto superior esquerdo.}
+%     \label{fig:help_btn}
+% \end{figure}
+
+
+% -----------------------------------------------------------------------------
+% 8) CAPÍTULO 3 — Testes e Validação
+%    Colar: novo \item na lista de testes manuais.
+% -----------------------------------------------------------------------------
+
+    \item \textbf{Ajuda e primeira visita:} confirmar que, ao abrir a aplicação pela
+    primeira vez, surge o \textit{splash} com o texto de continuação abaixo do cartão;
+    que clicar fora, fechar ou \texttt{Esc} dispensam o ecrã; e que o botão
+    \texttt{?} volta a mostrar as instruções com animação coerente.
+
+
+% -----------------------------------------------------------------------------
+% 9) CONCLUSÃO — lista de objetivos atingidos
+%    Colar: novo \item ou frase no item «Interface web intuitiva».
+% -----------------------------------------------------------------------------
+
+% Item opcional para a conclusão:
+% \item \textbf{Orientação ao utilizador:} a interface integra um modal de ajuda e um
+% ecrã inicial na primeira visita, reduzindo a curva de aprendizagem sem alterar o backend.
+
+
+% =============================================================================
+% Lista de ficheiros de imagem a exportar (sugestão de nomes na pasta imagens/):
+%   - SS_help_splash.png   — splash completo (cartão + linha inferior)
+%   - SS_help_modal.png    — mesmo conteúdo aberto só com o botão ?
+%   - SS_help_modal_detalhe.png — opcional, zoom no texto/aviso
+% =============================================================================

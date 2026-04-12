@@ -13,8 +13,32 @@
     <!-- Floating Letters Background -->
     <div class="floating-letters" id="floating-letters"></div>
 
+    <!-- Como usar -->
+    <button type="button" class="help-nav-btn" id="help-btn" aria-haspopup="dialog" aria-controls="help-modal" aria-label="Como usar o Signify">?</button>
+
     <!-- Dictionary link - top right corner -->
     <a href="{{ url_for('dicionario.dicionario') }}" class="dict-nav-link">📓 Dicionário</a>
+
+    <div id="help-modal" class="help-modal" role="dialog" aria-modal="true" aria-labelledby="help-modal-title" hidden>
+        <div class="help-modal__backdrop" tabindex="-1"></div>
+        <div class="help-modal__stack">
+            <div class="help-modal__panel">
+                <button type="button" class="help-modal__close" aria-label="Fechar">×</button>
+                <h2 id="help-modal-title" class="help-modal__title">Como usar</h2>
+                <p class="help-modal__intro">O Signify é uma aplicação que utiliza a câmara para reconhecer gestos e convertê-los em texto em tempo real.</p>
+                <ul class="help-modal__list">
+                    <li><strong>Câmara</strong> — Clique para ativar a <strong>câmara</strong>. O navegador vai pedir permissão — aceite para que o reconhecimento funcione.</li>
+                    <li><strong>Letras/Palavras</strong> — Escolha o modo conforme o que pretende: soletrar com o alfabeto ASL ou reconhecer palavras em LGP.</li>
+                    <li><strong>Letra atual / Palavra</strong> — Mostra o que está a ser reconhecido no momento.</li>
+                    <li><strong>Texto completo</strong> — Apresenta a frase ou o texto que vai sendo construído.</li>
+                    <li><strong>Limpar texto, Espaço e Apagar</strong> — utilize estes botões para apagar todo o texto, adicionar espaços ou apagar a última palavra.</li>
+                    <li><strong>Dicionário</strong> — para ver exemplos de letras e de palavras (botão no canto superior direito).</li>
+                </ul>
+                <p class="help-modal__note">Esta aplicação é apenas para fins educativos, serve como apoio à comunicação e o reconhecimento de gestos pode não ser totalmente preciso, não substituindo um intérprete profissional.</p>
+            </div>
+            <p class="help-modal__tap" id="help-modal-tap">Clica em qualquer sítio para continuar</p>
+        </div>
+    </div>
 
     <div class="container">
         <header class="header">
@@ -93,7 +117,7 @@
 
         <!-- Footer -->
         <footer class="footer">
-            <p>Reconhecimento de gestos manuais em tempo real</p>
+            <p>Reconhecimento de gestos de língua gestual em tempo real</p>
         </footer>
     </div>
 

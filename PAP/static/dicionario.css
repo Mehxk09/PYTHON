@@ -1,9 +1,23 @@
 /* ===== Dictionary Page Styles — Dark Monochrome ===== */
 
-/* Override body overflow to allow scrolling on dictionary page */
-body.dict-page {
-    overflow-y: auto !important;
+/*
+ * background-attachment:fixed is unreliable on body when body has overflow:auto.
+ * Scroll the document on <html> instead; paint the sky gradient on html.dict-root.
+ * Hide the duplicate .gradient-bg (viewport-only) so nothing flashes #163a6e at the end.
+ */
+html.dict-root {
     overflow-x: hidden;
+    overflow-y: auto;
+    min-height: 100%;
+    background: linear-gradient(180deg, #0a1628 0%, #0d1f40 20%, #163a6e 45%, #1e4f8a 65%, #2563a8 85%, #2e72b8 100%);
+    background-attachment: fixed;
+    background-color: #163a6e;
+}
+
+body.dict-page {
+    overflow: visible !important;
+    background: transparent;
+    min-height: 100%;
 }
 
 body.dict-page .container {
@@ -11,18 +25,18 @@ body.dict-page .container {
 }
 
 body.dict-page .gradient-bg {
-    position: fixed;
-    height: 100vh;
+    display: none !important;
 }
 
 .dict-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 1.5rem 2rem 3rem;
+    padding: 1.5rem 2rem 2rem;
     min-height: 100vh;
     position: relative;
     z-index: 1;
-    overflow-y: auto;
+    /* Scroll the page (body), not a nested box — avoids double scrollbars / bottom gaps */
+    overflow: visible;
 }
 
 /* Header */
@@ -382,30 +396,34 @@ body.dict-page .gradient-bg {
     font-size: 0.85rem;
 }
 
-/* Footer */
-.dict-footer {
-    text-align: center;
-    padding: 2rem 0 1rem;
-    color: rgba(255, 255, 255, 0.3);
-    font-size: 0.75rem;
-    letter-spacing: 0.05em;
+/* Footer uses global .footer from style.css — spacing on scroll page */
+body.dict-page .footer {
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    width: 100%;
+    font-weight: 500;
+    box-sizing: border-box;
 }
 
-/* Custom scrollbar */
-body.dict-page::-webkit-scrollbar {
+body.dict-page .footer p {
+    margin: 0;
+}
+
+/* Scrollbar lives on html when dict-root scrolls */
+html.dict-root::-webkit-scrollbar {
     width: 8px;
 }
 
-body.dict-page::-webkit-scrollbar-track {
+html.dict-root::-webkit-scrollbar-track {
     background: rgba(255, 255, 255, 0.02);
 }
 
-body.dict-page::-webkit-scrollbar-thumb {
+html.dict-root::-webkit-scrollbar-thumb {
     background: rgba(255, 255, 255, 0.15);
     border-radius: 4px;
 }
 
-body.dict-page::-webkit-scrollbar-thumb:hover {
+html.dict-root::-webkit-scrollbar-thumb:hover {
     background: rgba(255, 255, 255, 0.25);
 }
 
