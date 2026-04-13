@@ -344,20 +344,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // Como usar (? modal) + entrada inicial (splash) a cair de cima
 (function initHelpModal() {
-    const SPLASH_KEY = 'signify_help_splash_seen';
+    const SKIP_SPLASH_ONCE_KEY = 'signify_skip_splash_once';
 
-    function hasSeenSplash() {
+    function cameFromDictionaryPage() {
         try {
-            return localStorage.getItem(SPLASH_KEY) === '1';
+            const params = new URLSearchParams(window.location.search);
+            return params.get('from_page') === 'dicionario';
         } catch (e) {
             return false;
         }
     }
 
-    function markSplashSeen() {
+    function shouldSkipSplashOnce() {
         try {
-            localStorage.setItem(SPLASH_KEY, '1');
-        } catch (e) { /* private mode / quota */ }
+            return sessionStorage.getItem(SKIP_SPLASH_ONCE_KEY) === '1';
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function clearSkipSplashOnce() {
+        try {
+            sessionStorage.removeItem(SKIP_SPLASH_ONCE_KEY);
+        } catch (e) {
+            // ignore storage errors
+        }
+    }
+
+    function clearFromPageParam() {
+        try {
+            const url = new URL(window.location.href);
+            if (url.searchParams.get('from_page') !== 'dicionario') return;
+            url.searchParams.delete('from_page');
+            const next = url.pathname + (url.searchParams.toString() ? `?${url.searchParams.toString()}` : '') + url.hash;
+            window.history.replaceState({}, document.title, next);
+        } catch (e) {
+            // ignore URL/history errors
+        }
     }
 
     const btn = document.getElementById('help-btn');
@@ -398,7 +421,6 @@ document.addEventListener('DOMContentLoaded', function () {
         function finish() {
             if (finished) return;
             finished = true;
-            markSplashSeen();
             closeModal();
         }
         if (stack) {
@@ -411,9 +433,12 @@ document.addEventListener('DOMContentLoaded', function () {
         setTimeout(finish, 600);
     }
 
-    // Entrada automática: só na primeira vez (depois de fechar o splash, não voltar a mostrar ao regressar de outras páginas)
-    if (hasSeenSplash()) {
+    // Entrada automática: mostrar ao carregar a página principal,
+    // exceto quando o utilizador acabou de vir da página de dicionário.
+    if (cameFromDictionaryPage() || shouldSkipSplashOnce()) {
         modal.hidden = true;
+        clearSkipSplashOnce();
+        clearFromPageParam();
     } else {
         modal.hidden = false;
         modal.classList.add('help-modal--splash');

@@ -15,7 +15,7 @@
     <div class="floating-letters" id="floating-letters"></div>
 
     <!-- Back link - top left corner -->
-    <a href="{{ url_for('index') }}" class="dict-back-link">← Voltar</a>
+    <a href="{{ url_for('index', from_page='dicionario') }}" class="dict-back-link" id="dict-back-link">← Voltar</a>
 
     <div class="dict-container">
         <!-- Header -->
@@ -176,6 +176,16 @@
                 });
             });
         });
+
+        // Mark one-time skip for "Como usar" splash when returning to main page
+        const backLink = document.getElementById('dict-back-link');
+        if (backLink) {
+            backLink.addEventListener('click', function () {
+                try {
+                    sessionStorage.setItem('signify_skip_splash_once', '1');
+                } catch (e) { /* ignore storage errors */ }
+            });
+        }
     </script>
 </body>
 </html>
