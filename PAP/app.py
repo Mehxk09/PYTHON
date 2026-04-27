@@ -461,4 +461,9 @@ def backspace():
 # Run
 # ---------------------------
 if __name__ == '__main__':
-    app.run(debug=False, use_reloader=False)
+    host = os.environ.get("FLASK_HOST", "127.0.0.1")
+    port = int(os.environ.get("FLASK_PORT", "5000"))
+
+    display_host = "127.0.0.1" if host == "0.0.0.0" else host
+    print(f"Server starting on: http://{display_host}:{port}")
+    app.run(host=host, port=port, debug=False, use_reloader=False, threaded=True)
